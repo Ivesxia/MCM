@@ -123,7 +123,7 @@ def calculate_total_loss(breaks, bmi_values, event_times, event_observed):
     """计算给定分组下的总体损失"""
     labels = create_labels_from_breaks(bmi_values, breaks)
     group_sizes = [np.sum(labels == i) for i in range(len(breaks) - 1)]
-    if any(size < 5 for size in group_sizes):
+    if any(size < 3 for size in group_sizes):
         return float('inf'), None, None, labels
     
     kmf_dict = fit_kaplan_meier(event_times, labels, event_observed)
@@ -132,7 +132,7 @@ def calculate_total_loss(breaks, bmi_values, event_times, event_observed):
     total_loss = sum(optimal_losses)
     return total_loss, optimal_times, kmf_dict, labels
 
-def grid_search_optimization(n_groups=4, grid_points=8):
+def grid_search_optimization(n_groups=5, grid_points=8):
     """网格搜索优化区间分割"""
     min_bmi, max_bmi = np.min(BMI_data_whole), np.max(BMI_data_whole)
     best_loss = float('inf')
@@ -184,7 +184,7 @@ print("=" * 60)
 print("BMI分组与NIPT时间优化")
 print("=" * 60)
 
-n_groups = 4
+n_groups = 5
 grid_points = 8
 
 best_breaks, best_times, best_kmf, best_loss, best_labels, optimization_history = grid_search_optimization(
