@@ -5,9 +5,14 @@ from lifelines import KaplanMeierFitter
 from scipy.special import expit
 from itertools import combinations
 import matplotlib.pyplot as plt
+from matplotlib import rc
+
+
+plt.rcParams['font.sans-serif'] = ['SimHei']
+plt.rcParams['axes.unicode_minus'] = False 
 
 # 数据读取和处理
-df = pd.read_excel("data_manage/question1/initial_data/nipt_data.xlsx", sheet_name="男胎检测数据")
+df = pd.read_excel("initial_data/nipt_data.xlsx", sheet_name="男胎检测数据")
 df = df[df['Y染色体浓度'].notna()].copy()
 
 def convert_ga_to_decimal(ga_str):
@@ -193,6 +198,40 @@ jenks_loss, jenks_times, jenks_kmf, jenks_labels = calculate_total_loss(
 )
 
 # -----------------------
+# 最终结果输出
+# -----------------------
+
+print("\n" + "=" * 60)
+print("最终优化结果")
+print("=" * 60)
+
+print(f"数据统计:")
+print(f"   总样本数: {len(BMI_data_whole)}")
+print(f"   BMI范围: [{np.min(BMI_data_whole):.1f}, {np.max(BMI_data_whole):.1f}]")
+print(f"   BMI均值: {np.mean(BMI_data_whole):.1f} ± {np.std(BMI_data_whole):.1f}")
+
+print(f"\n最优分组方案:")
+print(f"   BMI分组边界: {[f'{x:.1f}' for x in best_breaks]}")
+print(f"   总体损失: {best_loss:.6f}")
+
+print(f"\n 各组最优NIPT检测时间:")
+for i in range(len(best_breaks) - 1):
+    group_size = np.sum(best_labels == i)
+    if group_size > 0 and i in best_kmf:
+        total_loss, early_risk, late_risk, p_t = comprehensive_loss(best_times[i], i, best_kmf)
+        print(f"   组{i} (BMI {best_breaks[i]:.1f}-{best_breaks[i+1]:.1f}):")
+        print(f"     → 样本数: {group_size}")
+        print(f"     → 最优时间: {best_times[i]:.1f}周")
+        print(f"     → 达标概率: {p_t:.3f}")
+        print(f"     → 组内风险: {total_loss:.4f}")
+
+print(f"\n 优化效果对比:")
+print(f"   Jenks分组损失: {jenks_loss:.6f}")
+print(f"   最优分组损失: {best_loss:.6f}")
+print(f"   优化提升: {(jenks_loss - best_loss)/jenks_loss*100:.1f}%")
+
+
+# -----------------------
 # 可视化
 # -----------------------
 
@@ -236,36 +275,3 @@ plt.legend(['BMI分布', '最优分组', 'Jenks分组'])
 plt.tight_layout()
 plt.savefig('optimization_results.png', dpi=300, bbox_inches='tight')
 plt.show()
-
-# -----------------------
-# 最终结果输出
-# -----------------------
-
-print("\n" + "=" * 60)
-print("最终优化结果")
-print("=" * 60)
-
-print(f"数据统计:")
-print(f"   总样本数: {len(BMI_data_whole)}")
-print(f"   BMI范围: [{np.min(BMI_data_whole):.1f}, {np.max(BMI_data_whole):.1f}]")
-print(f"   BMI均值: {np.mean(BMI_data_whole):.1f} ± {np.std(BMI_data_whole):.1f}")
-
-print(f"\n最优分组方案:")
-print(f"   BMI分组边界: {[f'{x:.1f}' for x in best_breaks]}")
-print(f"   总体损失: {best_loss:.6f}")
-
-print(f"\n 各组最优NIPT检测时间:")
-for i in range(len(best_breaks) - 1):
-    group_size = np.sum(best_labels == i)
-    if group_size > 0 and i in best_kmf:
-        total_loss, early_risk, late_risk, p_t = comprehensive_loss(best_times[i], i, best_kmf)
-        print(f"   组{i} (BMI {best_breaks[i]:.1f}-{best_breaks[i+1]:.1f}):")
-        print(f"     → 样本数: {group_size}")
-        print(f"     → 最优时间: {best_times[i]:.1f}周")
-        print(f"     → 达标概率: {p_t:.3f}")
-        print(f"     → 组内风险: {total_loss:.4f}")
-
-print(f"\n 优化效果对比:")
-print(f"   Jenks分组损失: {jenks_loss:.6f}")
-print(f"   最优分组损失: {best_loss:.6f}")
-print(f"   优化提升: {(jenks_loss - best_loss)/jenks_loss*100:.1f}%")
