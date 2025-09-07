@@ -17,28 +17,22 @@ df = df[df['Y染色体浓度'].notna()].copy()
 
 
 def convert_ga_to_decimal(ga_str, error_list):
-    """将"Xw+Y"、"XwY"、"Xw Y"等格式转换为小数周，并记录无法转换的值"""
+    """将孕周字符串转换为小数形式"""
     if pd.isna(ga_str):
         error_list.append(ga_str)
         return np.nan
-    
     ga_str = str(ga_str).lower().replace(' ', '')
-    
-    # Handle direct conversion if the input is only numeric followed by 'w'
     if ga_str.endswith('w') and ga_str[:-1].isdigit():
-        return int(ga_str[:-1])
-        
+        return float(ga_str[:-1])
     for sep in ['w+', 'w', '+']:
         if sep in ga_str:
             parts = ga_str.split(sep)
             if len(parts) == 2:
                 try:
-                    return int(parts[0]) + int(parts[1]) / 7
+                    return int(parts[0]) + int(parts[1]) / 7.0
                 except ValueError:
                     error_list.append(ga_str)
                     return np.nan
-    
-    # Consider it unconvertible
     error_list.append(ga_str)
     return np.nan
 # 创建一个空列表用于存储无法转换的值
