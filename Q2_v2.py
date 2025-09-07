@@ -15,21 +15,35 @@ plt.rcParams['axes.unicode_minus'] = False
 df = pd.read_excel("initial_data/nipt_data.xlsx", sheet_name="男胎检测数据")
 df = df[df['Y染色体浓度'].notna()].copy()
 
-def convert_ga_to_decimal(ga_str):
-    """将"Xw+Y"格式转换为小数周"""
+def convert_ga_to_decimal(ga_str, error_list):
+    """将"Xw+Y"、"XwY"、"Xw Y"等格式转换为小数周，并记录无法转换的值"""
     if pd.isna(ga_str):
+        error_list.append(ga_str)
         return np.nan
-    if 'w+' in str(ga_str):
-        w_part, d_part = str(ga_str).split('w+')
-    else:
-        return np.nan
-    try:
-        return int(w_part) + int(d_part) / 7
-    except (ValueError, IndexError):
-        return np.nan
+    
+    ga_str = str(ga_str).lower().replace(' ', '')
+    
+    # Handle direct conversion if the input is only numeric followed by 'w'
+    if ga_str.endswith('w') and ga_str[:-1].isdigit():
+        return int(ga_str[:-1])
+        
+    for sep in ['w+', 'w', '+']:
+        if sep in ga_str:
+            parts = ga_str.split(sep)
+            if len(parts) == 2:
+                try:
+                    return int(parts[0]) + int(parts[1]) / 7
+                except ValueError:
+                    error_list.append(ga_str)
+                    return np.nan
+    
+    # Consider it unconvertible
+    error_list.append(ga_str)
+    return np.nan
 
 # 转换孕周并筛选10-25周样本
-df['小数孕周'] = df['检测孕周'].apply(convert_ga_to_decimal)
+error_list = []
+df['小数孕周'] = df['检测孕周'].apply(lambda x: convert_ga_to_decimal(x, error_list))
 df = df[(df['小数孕周'] >= 10) & (df['小数孕周'] <= 25)]
 
 # GC含量筛选
