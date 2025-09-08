@@ -392,7 +392,7 @@ axes[1, 1].legend()
 axes[1, 1].grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig(f'optimal_bmi_analysis_{n_groups}_groups.png', dpi=300, bbox_inches='tight')
+plt.savefig(f'optimal_bmi_analysis_{n_groups}_groups_error.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # 保存详细结果
@@ -417,6 +417,6 @@ results_df['综合损失值'] = loss_values
 results_df['未达标概率'] = failure_probs
 
 # 保存结果
-output_filename = f'optimal_bmi_binning_results_{n_groups}_groups.xlsx'
+output_filename = f'optimal_bmi_binning_results_{n_groups}_groups_error.xlsx'
 results_df.to_excel(output_filename, index=False)
 print(f"\n分析完成！结果已保存到 {output_filename}")

@@ -140,7 +140,7 @@ def calculate_total_loss(breaks, bmi_values, event_times, event_observed):
     total_loss = sum(optimal_losses)
     return total_loss, optimal_times, kmf_dict, labels
 
-def grid_search_optimization(n_groups=5, grid_points=8):
+def grid_search_optimization(n_groups=6, grid_points=8):
     """网格搜索优化区间分割"""
     min_bmi, max_bmi = np.min(BMI_data_whole), np.max(BMI_data_whole)
     best_loss = float('inf')
@@ -192,7 +192,7 @@ print("=" * 60)
 print("BMI分组与NIPT时间优化")
 print("=" * 60)
 
-n_groups = 5
+n_groups = 6
 grid_points = 8
 
 best_breaks, best_times, best_kmf, best_loss, best_labels, optimization_history = grid_search_optimization(

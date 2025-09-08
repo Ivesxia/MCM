@@ -159,7 +159,7 @@ def comprehensive_loss(time, IVF_data, age_data, Pregnancy_count_data,
 # -----------------------
 # 优化算法
 # -----------------------
-def find_optimal_bmi_bins(BMI_data, n_groups=6, n_iter=20):
+def find_optimal_bmi_bins(BMI_data, n_groups=3, n_iter=20):
     """
     寻找最优BMI区间划分
     """
@@ -271,7 +271,7 @@ def find_optimal_bmi_bins(BMI_data, n_groups=6, n_iter=20):
 # 主程序
 # -----------------------
 # 设置要划分的组数
-n_groups = 6
+n_groups = 3
 
 print(f"开始寻找最优BMI区间划分，目标组数: {n_groups}...")
 start_time = time.time()
